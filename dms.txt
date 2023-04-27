@@ -1,0 +1,307 @@
+server side udp
+import java.net.*;
+import java.io.*;
+
+public class Server {
+    public static void main(String[] args) {
+        // Create a socket to listen on port 1234
+        DatagramSocket socket = null;
+        try {
+            socket = new DatagramSocket(1234);
+            System.out.println("Server started. Listening on port 1234...");
+        } catch (SocketException e) {
+            System.out.println("cannot connect to the server");
+            System.err.println("Error creating socket: " + e.getMessage());
+            System.exit(1);
+        }
+
+        // Create a buffer to receive incoming data
+        byte[] buffer = new byte[1024];
+
+        while (true) {
+            // Create a datagram packet to receive incoming data
+            DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
+
+            // Receive the data
+            try {
+                socket.receive(receivePacket);
+            } catch (IOException e) {
+                System.err.println("Error receiving data: " + e.getMessage());
+                continue;
+            }
+
+            // Extract the two integers from the received data
+            String data = new String(buffer, 0, receivePacket.getLength());
+            String[] parts = data.split(",");
+            if (parts.length != 2) {
+                System.err.println("Invalid data received: " + data);
+                continue;
+            }
+
+            double num1, num2;
+            try {
+                num1 = Double.parseDouble(parts[0]);
+                num2 = Double.parseDouble(parts[1]);
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid data received: " + data);
+                continue;
+            }
+
+            // Perform addition and subtraction
+            double sum = num1 + num2;
+            double diff = num1 - num2;
+
+            // Create a datagram packet to send the results back to the client
+            String result = "sum=" + sum + ", diff=" + diff;
+            byte[] sendData = result.getBytes();
+            DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length,
+                    receivePacket.getAddress(), receivePacket.getPort());
+
+            // Send the packet
+            try {
+                socket.send(sendPacket);
+                System.out.println("Sent response: " + result);
+            } catch (IOException e) {
+                System.err.println("Error sending response: " + e.getMessage());
+            }
+        }
+    }
+}
+
+
+client side udp
+// Java program to illustrate Client side
+// Implementation using DatagramSocket
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class Client
+{
+    public static void main(String args[]) throws IOException
+    {
+        Scanner sc = new Scanner(System.in);
+
+        // Step 1:Create the socket object for
+        // carrying the data.
+        DatagramSocket ds = new DatagramSocket();
+        System.out.println("Connection to server established...");
+
+        InetAddress ip = InetAddress.getLocalHost();
+        byte buf[] = null;
+
+        System.out.println("Enter the first number: ");
+        String num1 = sc.nextLine();
+
+        System.out.println("Enter the second number: ");
+        String num2 = sc.nextLine();
+
+        String num = num1 + "," + num2;
+
+        // convert the String input into the byte array.
+        buf = num.getBytes();
+
+        // Step 2 : Create the datagramPacket for sending
+        // the data.
+        DatagramPacket DpSend = new DatagramPacket(buf, buf.length, ip, 1234);
+
+        // Step 3 : invoke to send call to actually send
+        // the data.
+        ds.send(DpSend);
+
+        byte[] receivedata = new byte[1024];
+        DatagramPacket DpReceive = new DatagramPacket(receivedata, receivedata.length);
+        ds.receive(DpReceive);
+        String result = new String(DpReceive.getData(), 0, DpReceive.getLength());
+
+        System.out.println(result);
+
+        ds.close();
+    }
+}
+
+
+server side tcp
+import java.net.*;
+import java.io.*;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(8080);
+        System.out.println("Server started and listening on port ");
+
+        Socket socket = serverSocket.accept();
+        System.out.println("Client connected!");
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        int num1 = Integer.parseInt(reader.readLine());
+        int num2 = Integer.parseInt(reader.readLine());
+
+        int sum = num1 + num2;
+        System.out.println("Sum of " + num1 + " and " + num2 + " is " + sum);
+        int multi = num1 * num2;
+        System.out.println("Multiplication of " + num1 + " and " + num2 + " is " + multi);
+
+        String str1 = Integer.toString(sum);
+        String str2 = Integer.toString(multi);
+
+        OutputStream outputStream = socket.getOutputStream();
+
+        String message = str1 + " " + str2;
+        outputStream.write(message.getBytes());
+
+        socket.close();
+        serverSocket.close();
+    }
+}
+
+
+servr sider tcp
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class Client {
+    public static void main(String[] args) throws IOException {
+        Socket socket = new Socket("localhost", 8080);
+        PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+        Scanner sc = new Scanner(System.in);
+
+        System.out.println("Enter first number: ");
+        int num1 = sc.nextInt();
+        System.out.println("Enter second number: ");
+        int num2 = sc.nextInt();
+        writer.println(num1);
+        writer.println(num2);
+
+        InputStream inputStream = socket.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String message = reader.readLine();
+
+        String[] splitStrings = message.split(" ");
+        String firstString = splitStrings[0];
+        String secondString = splitStrings[1];
+        System.out.println("Sum of " + num1 +" and "+ num2 +" is " +firstString);
+        System.out.println("Multiplication of " + num1 +" and "+ num2 +" is " +secondString);
+
+        socket.close();
+    }
+}
+
+
+
+ns2 tcp udp:
+#Create a simulator object
+set ns [new Simulator]
+
+#Open the NAM trace file
+set nr [open out.tr w]
+$ns trace-all $nr
+set nf [open out.nam w]
+$ns namtrace-all $nf
+
+#Define different colors for data flows (for NAM)
+$ns color 1 Blue
+$ns color 2 Red
+$ns color 3 Green
+
+#Define a 'finish' procedure
+proc finish {} {
+        global ns nr nf
+        $ns flush-trace
+        #Close the NAM trace file and execute
+        close $nf
+		close $nr
+        exec nam out.nam &
+        exit 0
+}
+
+#Create four nodes
+for {set i 0} {$i < 4} {incr i 1} {
+set n$i [$ns node]
+}
+
+#Create links between the nodes
+$ns duplex-link $n0 $n3 1Mb 10ms DropTail
+$ns duplex-link $n0 $n2 1Mb 10ms DropTail
+$ns duplex-link $n2 $n3 1Mb 20ms DropTail
+$ns duplex-link $n3 $n1 1Mb 20ms DropTail
+
+#Give Queue Limit
+# $ns queue-limit $n2 $n3 10
+
+#Give node positions (for NAM)
+$ns duplex-link-op $n0 $n2 orient right
+$ns duplex-link-op $n2 $n3 orient left-down
+$ns duplex-link-op $n0 $n3 orient right-down
+$ns duplex-link-op $n3 $n1 orient left-down
+
+#Setup a TCP connection
+set tcp [new Agent/TCP]
+# $tcp set class_ 2
+$ns attach-agent $n3 $tcp
+set sink [new Agent/TCPSink]
+$ns attach-agent $n2 $sink
+$ns connect $tcp $sink
+$tcp set fid_ 3
+
+#Setup a FTP over TCP connection
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+$ftp set type_ FTP
+$ftp set packet_size_ 1000
+$ftp set rate_ 1mb
+
+
+#Setup of UDP connection
+set udp0 [new Agent/UDP]
+$ns attach-agent $n0 $udp0
+
+set cbr0 [new Application/Traffic/CBR]
+$cbr0 attach-agent $udp0
+$cbr0 set type_ CBR
+$cbr0 set packet_size_ 1000
+$cbr0 set interval_ 0.005
+# $cbr0 set rate_ 1mb
+
+set null0 [new Agent/Null]
+$ns attach-agent $n2 $null0
+$ns connect $udp0 $null0
+
+#setup udp connection 2
+set udp1 [new Agent/UDP]
+$ns attach-agent $n1 $udp1
+set cbr1 [new Application/Traffic/CBR]
+$cbr1 set packet_size_ 500
+$cbr1 set interval_ 0.005
+$cbr1 attach-agent $udp1
+set null1 [new Agent/Null]
+$ns attach-agent $n3 $null1
+$ns connect $udp1 $null1
+
+$udp0 set fid_ 1
+$udp1 set fid_ 2
+
+#Schedule events for the CBR and FTP agents
+$ns at 0.1 "$cbr1 start"
+$ns at 0.5 "$cbr0 start"
+$ns at 1.0 "$ftp start"
+$ns at 3.5 "$cbr0 stop"
+$ns at 4.0 "$cbr1 stop"
+$ns at 4.5 "$ftp stop"
+$ns at 5.0 "finish"
+
+#Run the simulation
+$ns run
+
+
+DVR : 	
+$ns cost $n0 $n1 2
+$ns cost $n0 $n3 1
+$ns cost $n1 $n3 7
+$ns cost $n1 $n2 3
+$ns cost $n2 $n3 11
+$ns rtmodel-at 1.0 down $n1 $n3
+$ns rtmodel-at 2.0 up $n1 $n3
+$ns rtproto DV
