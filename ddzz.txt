@@ -1,0 +1,126 @@
+ste.charAt    .length()
+
+Scanner scanner = new Scanner(System.in)
+int number = scanner.nextInt()
+
+Integer.parseInt(str)
+
+num.toString()
+String.Valueof(num)
+string str = "" + num
+
+
+String[] substrings = str.split(",");
+
+
+
+for(String substring : substrings)
+
+
+
+//most imp
+int[] --> length
+string --> length()
+
+String str = "34 2 3 566 4";
+        String[] strArray = str.split(" ");
+        int[] intArray = new int[strArray.length];
+
+        for (int i = 0; i < strArray.length; i++) {
+            intArray[i] = Integer.parseInt(strArray[i]);
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TCPDUMP
+
+tcpdump -n
+tcpdump -v -n
+tcpdump -n src 199...
+tcpdump -n dst 199...
+tcpdump -n port 80
+	    src port 80
+tcpdump udp src port 53
+tcpdump -n portrange 1-80
+
+
+tcpdump port 80 -w capture_file
+tcpdump -r capture_file
+
+
+# tcpdump 'src 10.0.2.4 and (dst port 3389 or 22)'
+
+
+
+Show me all URGENT (URG) packets…
+# tcpdump 'tcp[13] & 32!=0'
+Show me all ACKNOWLEDGE (ACK) packets…
+# tcpdump 'tcp[13] & 16!=0'
+Show me all PUSH (PSH) packets…
+# tcpdump 'tcp[13] & 8!=0'
+Show me all RESET (RST) packets…
+# tcpdump 'tcp[13] & 4!=0'
+Show me all SYNCHRONIZE (SYN) packets…
+# tcpdump 'tcp[13] & 2!=0'
+Show me all FINISH (FIN) packets…
+# tcpdump 'tcp[13] & 1!=0'
+Show me all SYNCHRONIZE/ACKNOWLEDGE (SYNACK) packets…
+# tcpdump 'tcp[13]=18
+
+
+
+
+tcpdump -D  --> gives interfaces
+	  -X -> packets content in hex and ASCII
+	-v -vv -vvv -> increase the amount og packet information
+	-c -> only get x number of packets and then stop
+	-e -> get header length as well
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+General Purpose Commands
+
+ipconfig
+ipconfig/ip
+
+ping
+traceroute / traceert
+netstat
+nslookup
+ss(socket statistics)
+dig(domain info grofer)
+curl
+wget  - world wide webget - download and cponvert to zip
+tcpdump
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Wireshark
+
+ip.dst==192.168.0.10&&http
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Distance vec
+
+
+JPEG and MPEG full form
+
+
+CRC and checkssum ke sums
+
+Headers
+
+
